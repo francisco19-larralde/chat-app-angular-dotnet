@@ -1,0 +1,19 @@
+## Angular / Node
+frontend/chat-app/node_modules/
+frontend/chat-app/dist/
+frontend/chat-app/.angular/
+
+## .NET
+backend/**/bin/
+backend/**/obj/
+backend/**/*.user
+
+## Archivos de configuración con secretos
+**/appsettings.Development.json
+**/appsettings.Production.json
+**/.env
+
+## Sistema operativo / editor
+.vscode/
+.DS_Store
+Thumbs.db
