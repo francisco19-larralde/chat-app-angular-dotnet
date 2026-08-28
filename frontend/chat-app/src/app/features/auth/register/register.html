@@ -1,0 +1,52 @@
+<div class="min-h-screen flex items-center justify-center bg-base-200 px-4">
+  <div class="card w-full max-w-sm bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="text-2xl font-bold text-center mb-2">Crear cuenta</h2>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-3">
+
+        <div>
+          <label class="label"><span class="label-text">Usuario</span></label>
+          <input type="text" formControlName="username" class="input input-bordered w-full" placeholder="franco123" />
+          @if (form.get('username')?.touched && form.get('username')?.invalid) {
+          <span class="text-error text-xs mt-1">Mínimo 3 caracteres</span>
+          }
+        </div>
+
+        <div>
+          <label class="label"><span class="label-text">Email</span></label>
+          <input type="email" formControlName="email" class="input input-bordered w-full" placeholder="tu@email.com" />
+          @if (form.get('email')?.touched && form.get('email')?.invalid) {
+          <span class="text-error text-xs mt-1">Ingresá un email válido</span>
+          }
+        </div>
+
+        <div>
+          <label class="label"><span class="label-text">Contraseña</span></label>
+          <input type="password" formControlName="password" class="input input-bordered w-full"
+            placeholder="••••••••" />
+          @if (form.get('password')?.touched && form.get('password')?.invalid) {
+          <span class="text-error text-xs mt-1">Mínimo 6 caracteres</span>
+          }
+        </div>
+
+        @if (errorMessage()) {
+        <div class="alert alert-error text-sm py-2">{{ errorMessage() }}</div>
+        }
+
+        <button type="submit" class="btn btn-primary w-full mt-2" [disabled]="isLoading()">
+          @if (isLoading()) {
+          <span class="loading loading-spinner loading-sm"></span>
+          } @else {
+          Crear cuenta
+          }
+        </button>
+      </form>
+
+      <p class="text-center text-sm mt-4">
+        ¿Ya tenés cuenta?
+        <a routerLink="/login" class="link link-primary">Iniciá sesión</a>
+      </p>
+    </div>
+  </div>
+</div>

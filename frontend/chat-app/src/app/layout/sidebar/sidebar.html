@@ -13,6 +13,7 @@
     <div class="avatar">
       <div class="w-10 rounded-full bg-neutral"></div>
     </div>
-    <span class="hidden md:block text-sm font-medium">Mi perfil</span>
+    <span class="hidden md:block text-sm font-medium">{{ user()?.username }}</span>
+    <button (click)="logout()">Cerrar sesión</button>
   </div>
 </aside>
