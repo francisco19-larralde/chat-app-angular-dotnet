@@ -1,6 +1,6 @@
 <aside class="h-full flex flex-col bg-base-100">
   <div class="p-4 border-b border-base-300">
-    <h1 routerLink="/" class="hidden md:block text-xl font-bold cursor-pointer">ChatApp</h1>
+    <h1 class="hidden md:block text-xl font-bold">ChatApp</h1>
   </div>
 
   <div class="p-2 border-b border-base-300">
@@ -10,31 +10,58 @@
   </div>
 
   <div class="flex-1 overflow-y-auto">
-    <p class="p-4 text-sm text-base-content/60 hidden md:block">
-      Próximamente: lista de chats
-    </p>
-  </div>
-
-  <div class="p-3 border-t border-base-300 flex items-center gap-3">
-    <a routerLink="/profile" class="flex items-center gap-3 hover:bg-base-200 rounded-lg p-1 -m-1 w-full">
-      <div class="avatar">
+    @for (chat of chats(); track chat.chatId) {
+    <a [routerLink]="['/chat', chat.chatId]" routerLinkActive="bg-base-200"
+      class="flex items-center gap-3 p-3 hover:bg-base-200 border-b border-base-300/50">
+      <div class="avatar" [class.avatar-online]="chat.isOtherUserOnline"
+        [class.avatar-offline]="!chat.isOtherUserOnline">
         <div class="w-10 rounded-full bg-neutral overflow-hidden">
-          @if (getImageUrl(user()?.profilePictureUrl); as picUrl) {
-          <img [src]="picUrl" alt="Foto de perfil" />
+          @if (getImageUrl(chat.displayPictureUrl); as url) {
+          <img [src]="url" class="w-full h-full object-cover" alt="Foto de perfil" />
           }
         </div>
       </div>
 
-      <span class="hidden md:block text-sm font-medium">
+      <div class="hidden md:block flex-1 min-w-0">
+        <p class="font-medium truncate">
+          {{ chat.displayName }}
+        </p>
+
+        <p class="text-xs text-base-content/60 truncate">
+          {{ chat.lastMessageContent ?? 'Sin mensajes todavía' }}
+        </p>
+      </div>
+    </a>
+    } @empty {
+    <p class="hidden md:block p-4 text-sm text-base-content/60">
+      Todavía no tenés chats. Andá a "Amigos" para empezar una conversación.
+    </p>
+    }
+  </div>
+
+  <div class="p-3 border-t border-base-300 flex items-center gap-3">
+    <a routerLink="/profile" class="flex items-center gap-3 hover:bg-base-200 rounded-lg p-1 -m-1 flex-1 min-w-0">
+      <div class="avatar">
+        <div class="w-10 rounded-full bg-neutral overflow-hidden">
+          @if (getImageUrl(user()?.profilePictureUrl); as picUrl) {
+          <img [src]="picUrl" class="w-full h-full object-cover" alt="Foto de perfil" />
+          }
+        </div>
+      </div>
+
+      <span class="hidden md:block text-sm font-medium truncate">
         {{ user()?.username }}
       </span>
     </a>
 
-    <button class="btn btn-ghost btn-square" (click)="logout()">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+    <button class="btn btn-ghost btn-sm btn-square" (click)="logout()" title="Cerrar sesión" aria-label="Cerrar sesión">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"
+        class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6A2.25 2.25 0 0 0 5.25 5.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M18 15l3-3m0 0l-3-3m3 3H9" />
       </svg>
     </button>
+
   </div>
 </aside>

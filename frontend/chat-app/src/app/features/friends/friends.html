@@ -102,7 +102,10 @@
         </div>
       </div>
 
-      <button class="btn btn-sm btn-ghost text-error" (click)="removeFriend(friend.userId)">Eliminar</button>
+      <div class="flex gap-2">
+        <button class="btn btn-sm btn-primary" (click)="startChat(friend.userId)">Chatear</button>
+        <button class="btn btn-sm btn-ghost text-error" (click)="removeFriend(friend.userId)">Eliminar</button>
+      </div>
     </div>
     } @empty {
     <p class="text-center text-base-content/60 py-4">Todavía no tenés amigos agregados.</p>

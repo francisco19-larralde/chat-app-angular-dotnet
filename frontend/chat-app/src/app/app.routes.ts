@@ -5,10 +5,12 @@ import { Register } from './features/auth/register/register';
 import { authGuard } from './core/guards/auth.guard';
 import { Profile } from './features/profile/profile';
 import { Friends } from './features/friends/friends';
+import { guestGuard } from './core/guards/guest.guard';
+import { ChatWindow } from './features/chat/chat-window/chat-window';
 
 export const routes: Routes = [
-  { path: 'login', component: Login },
-  { path: 'register', component: Register },
+  { path: 'login', component: Login, canActivate: [guestGuard] },
+  { path: 'register', component: Register, canActivate: [guestGuard] },
 
   {
     path: '',
@@ -16,7 +18,8 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: 'profile', component: Profile },
-      { path: 'friends', component: Friends }
+      { path: 'friends', component: Friends },
+      { path: 'chat/:chatId', component: ChatWindow }
     ]
   }
 ];
