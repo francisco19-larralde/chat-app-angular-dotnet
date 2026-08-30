@@ -3,6 +3,8 @@ import { MainLayout } from './layout/main-layout/main-layout';
 import { Login } from './features/auth/login/login';
 import { Register } from './features/auth/register/register';
 import { authGuard } from './core/guards/auth.guard';
+import { Profile } from './features/profile/profile';
+import { Friends } from './features/friends/friends';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -13,8 +15,8 @@ export const routes: Routes = [
     component: MainLayout,
     canActivate: [authGuard],
     children: [
-      // Acá vamos a ir agregando las rutas hijas: chat, amigos, perfil, etc
-      // Por ahora dejamos un placeholder vacío en la Etapa 5
+      { path: 'profile', component: Profile },
+      { path: 'friends', component: Friends }
     ]
   }
 ];

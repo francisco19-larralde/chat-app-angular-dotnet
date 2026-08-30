@@ -1,6 +1,12 @@
 <aside class="h-full flex flex-col bg-base-100">
   <div class="p-4 border-b border-base-300">
-    <h1 class="hidden md:block text-xl font-bold">ChatApp</h1>
+    <h1 routerLink="/" class="hidden md:block text-xl font-bold cursor-pointer">ChatApp</h1>
+  </div>
+
+  <div class="p-2 border-b border-base-300">
+    <a routerLink="/friends" class="btn btn-ghost btn-sm w-full justify-start gap-2">
+      👥 <span class="hidden md:inline">Amigos</span>
+    </a>
   </div>
 
   <div class="flex-1 overflow-y-auto">
@@ -10,10 +16,25 @@
   </div>
 
   <div class="p-3 border-t border-base-300 flex items-center gap-3">
-    <div class="avatar">
-      <div class="w-10 rounded-full bg-neutral"></div>
-    </div>
-    <span class="hidden md:block text-sm font-medium">{{ user()?.username }}</span>
-    <button (click)="logout()">Cerrar sesión</button>
+    <a routerLink="/profile" class="flex items-center gap-3 hover:bg-base-200 rounded-lg p-1 -m-1 w-full">
+      <div class="avatar">
+        <div class="w-10 rounded-full bg-neutral overflow-hidden">
+          @if (getImageUrl(user()?.profilePictureUrl); as picUrl) {
+          <img [src]="picUrl" alt="Foto de perfil" />
+          }
+        </div>
+      </div>
+
+      <span class="hidden md:block text-sm font-medium">
+        {{ user()?.username }}
+      </span>
+    </a>
+
+    <button class="btn btn-ghost btn-square" (click)="logout()">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+      </svg>
+    </button>
   </div>
 </aside>

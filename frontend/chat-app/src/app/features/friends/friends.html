@@ -1,0 +1,113 @@
+<div class="max-w-2xl mx-auto p-4">
+
+  <div role="tablist" class="tabs tabs-boxed mb-4">
+    <a role="tab" class="tab" [class.tab-active]="activeTab() === 'search'" (click)="activeTab.set('search')">
+      Buscar
+    </a>
+    <a role="tab" class="tab" [class.tab-active]="activeTab() === 'requests'" (click)="activeTab.set('requests')">
+      Solicitudes
+      @if (requests().length > 0) {
+      <span class="badge badge-primary badge-sm ml-1">{{ requests().length }}</span>
+      }
+    </a>
+    <a role="tab" class="tab" [class.tab-active]="activeTab() === 'friends'" (click)="activeTab.set('friends')">
+      Amigos ({{ friends().length }})
+    </a>
+  </div>
+
+  <!-- Tab: Buscar usuarios -->
+  @if (activeTab() === 'search') {
+  <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()"
+    placeholder="Buscar por nombre de usuario..." class="input input-bordered w-full mb-4" />
+
+  @if (isSearching()) {
+  <div class="flex justify-center py-4">
+    <span class="loading loading-spinner"></span>
+  </div>
+  } @else {
+  <div class="flex flex-col gap-2">
+    @for (user of searchResults(); track user.id) {
+    <div class="flex items-center justify-between p-3 rounded-lg bg-base-100 border border-base-300">
+      <div class="flex items-center gap-3">
+        <div class="avatar">
+          <div class="w-10 rounded-full bg-neutral overflow-hidden">
+            @if (getImageUrl(user.profilePictureUrl); as url) {
+            <img [src]="url" class="w-full h-full object-cover" />
+            }
+          </div>
+        </div>
+        <span class="font-medium">{{ user.username }}</span>
+      </div>
+
+      @if (user.friendshipStatus === 'None') {
+      <button class="btn btn-sm btn-primary" (click)="sendRequest(user.id)">Agregar</button>
+      } @else if (user.friendshipStatus === 'Pending') {
+      <span class="badge badge-ghost">Pendiente</span>
+      } @else {
+      <span class="badge badge-success">Amigos</span>
+      }
+    </div>
+    } @empty {
+    @if (searchQuery.length >= 2) {
+    <p class="text-center text-base-content/60 py-4">No se encontraron usuarios.</p>
+    }
+    }
+  </div>
+  }
+  }
+
+  <!-- Tab: Solicitudes pendientes -->
+  @if (activeTab() === 'requests') {
+  <div class="flex flex-col gap-2">
+    @for (req of requests(); track req.friendshipId) {
+    <div class="flex items-center justify-between p-3 rounded-lg bg-base-100 border border-base-300">
+      <div class="flex items-center gap-3">
+        <div class="avatar">
+          <div class="w-10 rounded-full bg-neutral overflow-hidden">
+            @if (getImageUrl(req.requesterProfilePictureUrl); as url) {
+            <img [src]="url" class="w-full h-full object-cover" />
+            }
+          </div>
+        </div>
+        <span class="font-medium">{{ req.requesterUsername }}</span>
+      </div>
+
+      <div class="flex gap-2">
+        <button class="btn btn-sm btn-primary" (click)="acceptRequest(req.friendshipId)">Aceptar</button>
+        <button class="btn btn-sm btn-ghost" (click)="rejectRequest(req.friendshipId)">Rechazar</button>
+      </div>
+    </div>
+    } @empty {
+    <p class="text-center text-base-content/60 py-4">No tenés solicitudes pendientes.</p>
+    }
+  </div>
+  }
+
+  <!-- Tab: Lista de amigos -->
+  @if (activeTab() === 'friends') {
+  <div class="flex flex-col gap-2">
+    @for (friend of friends(); track friend.userId) {
+    <div class="flex items-center justify-between p-3 rounded-lg bg-base-100 border border-base-300">
+      <div class="flex items-center gap-3">
+        <div class="avatar" [class.avatar-online]="friend.isOnline" [class.avatar-offline]="!friend.isOnline">
+          <div class="w-10 rounded-full bg-neutral overflow-hidden">
+            @if (getImageUrl(friend.profilePictureUrl); as url) {
+            <img [src]="url" class="w-full h-full object-cover" />
+            }
+          </div>
+        </div>
+        <div>
+          <p class="font-medium">{{ friend.username }}</p>
+          <p class="text-xs text-base-content/60">{{ friend.isOnline ? 'En línea' : 'Desconectado' }}</p>
+        </div>
+      </div>
+
+      <button class="btn btn-sm btn-ghost text-error" (click)="removeFriend(friend.userId)">Eliminar</button>
+    </div>
+    } @empty {
+    <p class="text-center text-base-content/60 py-4">Todavía no tenés amigos agregados.</p>
+    }
+  </div>
+  }
+
+</div>

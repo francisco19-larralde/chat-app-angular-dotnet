@@ -39,6 +39,20 @@ public class UserRepository : IUserRepository
         return await _context.Users.AnyAsync(u => u.Username == username);
     }
 
+    public async Task<List<User>> SearchByUsernameAsync(string query, int excludeUserId)
+    {
+        return await _context.Users
+            .Where(u => u.Id != excludeUserId && u.Username.Contains(query))
+            .OrderBy(u => u.Username)
+            .Take(20)
+            .ToListAsync();
+    }
+    public Task UpdateAsync(User user)
+    {
+        _context.Users.Update(user);
+        return Task.CompletedTask;
+    }
+
     public async Task AddAsync(User user)
     {
         await _context.Users.AddAsync(user);

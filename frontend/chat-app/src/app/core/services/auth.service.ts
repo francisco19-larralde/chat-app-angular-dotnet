@@ -72,6 +72,16 @@ export class AuthService {
     this.currentUserSignal.set(user);
   }
 
+  updateCurrentUser(partialUser: Partial<User>): void {
+    const current = this.currentUserSignal();
+    if (!current) return;
+
+    const updated: User = { ...current, ...partialUser };
+
+    localStorage.setItem(this.userKey, JSON.stringify(updated));
+    this.currentUserSignal.set(updated);
+  }
+
   private getUserFromStorage(): User | null {
     const stored = localStorage.getItem(this.userKey);
     return stored ? JSON.parse(stored) : null;

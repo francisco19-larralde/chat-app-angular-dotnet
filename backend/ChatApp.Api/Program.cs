@@ -3,6 +3,7 @@ using ChatApp.Application.Services;
 using ChatApp.Application.Settings;
 using ChatApp.Infrastructure.Data;
 using ChatApp.Infrastructure.Repositories;
+using ChatApp.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -26,6 +27,10 @@ builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"))
 // "Scoped" significa: una instancia nueva por cada request HTTP
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
+builder.Services.AddScoped<IFriendService, FriendService>();
 
 // --- Autenticación JWT ---
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()!;
@@ -71,9 +76,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
 
+
+app.UseHttpsRedirection();
+app.UseStaticFiles(); // permite servir wwwroot/uploads/... como URLs públicas
 app.UseCors("AllowAngularApp");
+
 
 // El orden importa: primero autenticación (¿quién sos?), después autorización (¿podés hacer esto?)
 app.UseAuthentication();

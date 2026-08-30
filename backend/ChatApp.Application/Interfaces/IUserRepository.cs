@@ -9,6 +9,8 @@ public interface IUserRepository
     Task<User?> GetByGoogleIdAsync(string googleId);
     Task<bool> ExistsByEmailAsync(string email);
     Task<bool> ExistsByUsernameAsync(string username);
+    Task<List<User>> SearchByUsernameAsync(string query, int excludeUserId);
+    Task UpdateAsync(User user);
     Task AddAsync(User user);
     Task SaveChangesAsync();
 }
