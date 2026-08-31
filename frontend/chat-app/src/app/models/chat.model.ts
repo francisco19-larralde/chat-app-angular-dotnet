@@ -8,6 +8,14 @@ export interface ChatSummary {
   isOtherUserOnline: boolean;
 }
 
+export interface Attachment {
+  id: number;
+  fileUrl: string;
+  fileName: string;
+  contentType: string;
+  fileSizeBytes: number;
+}
+
 export interface Message {
   id: number;
   chatId: number;
@@ -18,4 +26,5 @@ export interface Message {
   content?: string;
   sentAt: string;
   isEdited: boolean;
+  attachments: Attachment[];
 }

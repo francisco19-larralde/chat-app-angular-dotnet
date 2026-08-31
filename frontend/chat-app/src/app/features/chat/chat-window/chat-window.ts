@@ -7,6 +7,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { SignalRService } from '../../../core/services/signal-r.service';
 import { Message } from '../../../models/chat.model';
 import { GroupInfo } from '../../groups/group-info/group-info';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-chat-window',
@@ -19,6 +20,7 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
   private chatService = inject(ChatService);
   private authService = inject(AuthService);
   private signalRService = inject(SignalRService);
+  readonly serverUrl = environment.apiUrl.replace('/api', '');
 
   @ViewChild('messagesEnd') private messagesEnd!: ElementRef<HTMLDivElement>;
 
@@ -30,6 +32,8 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
   newMessageText = '';
   isSending = signal(false);
   showGroupInfo = signal(false);
+  selectedFile = signal<File | null>(null);
+  selectedFilePreviewUrl = signal<string | null>(null);
 
   private shouldScrollToBottom = false;
   private previousChatId: number | null = null;
@@ -87,16 +91,24 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
 
   sendMessage(): void {
     const content = this.newMessageText.trim();
+    const file = this.selectedFile();
     const chatId = this.chatId();
-    if (!content || !chatId) return;
+
+    if (!content && !file) return;
+    if (!chatId) return;
 
     this.isSending.set(true);
 
-    this.chatService.sendMessage(chatId, content).subscribe({
+    this.chatService.sendMessage(chatId, content || null, file ?? undefined).subscribe({
       next: (message) => {
         this.addMessageIfNotExists(message);
-        this.chatService.updateChatWithNewMessage(chatId, message.content ?? '', message.sentAt);
+        this.chatService.updateChatWithNewMessage(
+          chatId,
+          message.content ?? (message.attachments.length > 0 ? '📎 Archivo adjunto' : ''),
+          message.sentAt
+        );
         this.newMessageText = '';
+        this.clearSelectedFile();
         this.isSending.set(false);
         this.shouldScrollToBottom = true;
       },
@@ -104,6 +116,37 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
         this.isSending.set(false);
       }
     });
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const maxSize = 20 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert('El archivo no puede superar los 20 MB.');
+      input.value = '';
+      return;
+    }
+
+    this.selectedFile.set(file);
+
+
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = () => this.selectedFilePreviewUrl.set(reader.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      this.selectedFilePreviewUrl.set(null);
+    }
+
+    input.value = '';
+  }
+
+  clearSelectedFile(): void {
+    this.selectedFile.set(null);
+    this.selectedFilePreviewUrl.set(null);
   }
 
   currentChatSummary = computed(() =>

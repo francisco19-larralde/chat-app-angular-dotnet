@@ -37,8 +37,17 @@ export class ChatService {
     });
   }
 
-  sendMessage(chatId: number, content: string) {
-    return this.http.post<Message>(`${this.apiUrl}/${chatId}/messages`, { content });
+  sendMessage(chatId: number, content: string | null, file?: File) {
+    const formData = new FormData();
+
+    if (content) {
+      formData.append('Content', content);
+    }
+    if (file) {
+      formData.append('File', file);
+    }
+
+    return this.http.post<Message>(`${this.apiUrl}/${chatId}/messages`, formData);
   }
 
 

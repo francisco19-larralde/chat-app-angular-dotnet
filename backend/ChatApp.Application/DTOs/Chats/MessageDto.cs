@@ -10,4 +10,5 @@ public class MessageDto
     public string? Content { get; set; }
     public DateTime SentAt { get; set; }
     public bool IsEdited { get; set; }
+    public List<AttachmentDto> Attachments { get; set; } = new();
 }

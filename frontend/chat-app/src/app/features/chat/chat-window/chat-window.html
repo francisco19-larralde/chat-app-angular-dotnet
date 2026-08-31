@@ -35,9 +35,35 @@
       <div class="max-w-xs md:max-w-md rounded-2xl px-4 py-2" [class.bg-primary]="isMine(message)"
         [class.text-primary-content]="isMine(message)" [class.bg-base-200]="!isMine(message)">
         @if (!isMine(message)) {
-        <p class="text-xs font-semibold opacity-70 mb-0.5">{{ message.senderUsername }}</p>
+        <p class="text-xs font-semibold opacity-70 mb-0.5">
+          {{ message.senderUsername }}
+        </p>
         }
-        <p class="whitespace-pre-wrap wrap-break-words">{{ message.content }}</p>
+
+        <!-- Adjuntos -->
+        @for (attachment of message.attachments; track attachment.id) {
+        @if (attachment.contentType.startsWith('image/')) {
+        <a [href]="serverUrl + attachment.fileUrl" target="_blank" rel="noopener noreferrer" class="block mb-1">
+          <img [src]="serverUrl + attachment.fileUrl" [alt]="attachment.fileName"
+            class="rounded-lg max-w-full max-h-64 object-cover" />
+        </a>
+        } @else {
+        <a [href]="serverUrl + attachment.fileUrl" target="_blank" rel="noopener noreferrer" download
+          class="flex items-center gap-2 p-2 rounded-lg bg-base-100/20 mb-1 hover:bg-base-100/30">
+          <span>📄</span>
+          <span class="text-sm truncate">
+            {{ attachment.fileName }}
+          </span>
+        </a>
+        }
+        }
+
+        @if (message.content) {
+        <p class="whitespace-pre-wrap wrap-break-words">
+          {{ message.content }}
+        </p>
+        }
+
         <p class="text-[10px] opacity-60 text-right mt-0.5">
           {{ message.sentAt | date: 'HH:mm' }}
         </p>
@@ -48,14 +74,36 @@
       Todavía no hay mensajes. ¡Escribí el primero!
     </p>
     }
+
     <div #messagesEnd></div>
   </div>
 
+
   <!-- Input para enviar -->
-  <div class="p-3 border-t border-base-300 flex gap-2">
+  <!-- Preview del archivo seleccionado, antes de enviar -->
+  @if (selectedFile(); as file) {
+  <div class="px-3 pt-2 flex items-center gap-2">
+    @if (selectedFilePreviewUrl(); as preview) {
+    <img [src]="preview" class="w-12 h-12 rounded-lg object-cover" />
+    } @else {
+    <span class="text-xl">📄</span>
+    }
+    <span class="text-sm truncate flex-1">{{ file.name }}</span>
+    <button class="btn btn-ghost btn-xs btn-circle" (click)="clearSelectedFile()">✕</button>
+  </div>
+  }
+
+  <div class="p-3 border-t border-base-300 flex gap-2 items-center">
+    <label class="btn btn-ghost btn-circle btn-sm" title="Adjuntar archivo">
+      📎
+      <input type="file" class="hidden" (change)="onFileSelected($event)" accept="image/*,.pdf,.doc,.docx,.txt,.zip" />
+    </label>
+
     <input type="text" [(ngModel)]="newMessageText" (keyup.enter)="sendMessage()" placeholder="Escribí un mensaje..."
       class="input input-bordered flex-1" [disabled]="isSending()" />
-    <button class="btn btn-primary" (click)="sendMessage()" [disabled]="isSending() || !newMessageText.trim()">
+
+    <button class="btn btn-primary" (click)="sendMessage()"
+      [disabled]="isSending() || (!newMessageText.trim() && !selectedFile())">
       @if (isSending()) {
       <span class="loading loading-spinner loading-xs"></span>
       } @else {

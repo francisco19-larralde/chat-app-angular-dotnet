@@ -61,19 +61,23 @@ public class ChatController : ControllerBase
     }
 
     [HttpPost("{chatId}/messages")]
-    public async Task<IActionResult> SendMessage(int chatId, SendMessageDto request)
+    public async Task<IActionResult> SendMessage(int chatId, [FromForm] SendMessageDto request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
         try
         {
-            var message = await _chatService.SendMessageAsync(GetCurrentUserId(), chatId, request.Content);
+            var message = await _chatService.SendMessageAsync(GetCurrentUserId(), chatId, request.Content, request.File);
             return Ok(message);
         }
         catch (UnauthorizedAccessException ex)
         {
             return Forbid(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
     }
 }

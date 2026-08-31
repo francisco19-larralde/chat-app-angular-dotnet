@@ -76,6 +76,7 @@ public class ChatRepository : IChatRepository
     {
         return await _context.Messages
             .Include(m => m.Sender)
+            .Include(m => m.Attachments)
             .Where(m => m.ChatId == chatId)
             .OrderByDescending(m => m.SentAt)
             .Skip(skip)
