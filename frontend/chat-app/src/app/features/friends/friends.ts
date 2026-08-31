@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 import { ChatService } from '../../core/services/chat.service';
 import { Router } from '@angular/router';
+import { SignalRService } from '../../core/services/signal-r.service';
 
 type Tab = 'search' | 'requests' | 'friends';
 
@@ -20,6 +21,8 @@ export class Friends implements OnInit {
   readonly serverUrl = environment.apiUrl.replace('/api', '');
   private chatService = inject(ChatService);
   private router = inject(Router);
+  private signalRService = inject(SignalRService);
+  onlineUserIds = this.signalRService.onlineUserIds;
 
   activeTab = signal<Tab>('search');
 
@@ -50,6 +53,10 @@ export class Friends implements OnInit {
   ngOnInit(): void {
     this.friendService.loadPendingRequests().subscribe();
     this.friendService.loadFriends().subscribe();
+  }
+
+  isOnline(userId: number): boolean {
+    return this.onlineUserIds().has(userId);
   }
 
   onSearchChange(): void {

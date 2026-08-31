@@ -8,6 +8,7 @@ public class ChatSummaryDto
 
     public string DisplayName { get; set; } = string.Empty;
     public string? DisplayPictureUrl { get; set; }
+    public int? OtherUserId { get; set; }
 
     public string? LastMessageContent { get; set; }
     public DateTime? LastMessageAt { get; set; }

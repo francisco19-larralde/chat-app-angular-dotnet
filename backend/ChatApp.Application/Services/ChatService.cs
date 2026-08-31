@@ -8,11 +8,14 @@ public class ChatService : IChatService
 {
     private readonly IChatRepository _chatRepository;
     private readonly IFriendshipRepository _friendshipRepository;
+    private readonly IChatNotifier _chatNotifier;
 
-    public ChatService(IChatRepository chatRepository, IFriendshipRepository friendshipRepository)
+    public ChatService(IChatRepository chatRepository, IFriendshipRepository friendshipRepository,
+        IChatNotifier chatNotifier)
     {
         _chatRepository = chatRepository;
         _friendshipRepository = friendshipRepository;
+        _chatNotifier = chatNotifier;
     }
 
     public async Task<List<ChatSummaryDto>> GetUserChatsAsync(int userId)
@@ -48,6 +51,7 @@ public class ChatService : IChatService
                     IsGroup = false,
                     DisplayName = otherMember.Username,
                     DisplayPictureUrl = otherMember.ProfilePictureUrl,
+                    OtherUserId = otherMember.Id,
                     LastMessageContent = lastMessage?.Content,
                     LastMessageAt = lastMessage?.SentAt,
                     IsOtherUserOnline = otherMember.IsOnline
@@ -114,11 +118,10 @@ public class ChatService : IChatService
         await _chatRepository.AddMessageAsync(message);
         await _chatRepository.SaveChangesAsync();
 
-
         var chat = await _chatRepository.GetByIdAsync(chatId);
         var sender = chat!.Members.First(m => m.UserId == userId).User;
 
-        return new MessageDto
+        var messageDto = new MessageDto
         {
             Id = message.Id,
             ChatId = chatId,
@@ -129,6 +132,13 @@ public class ChatService : IChatService
             SentAt = message.SentAt,
             IsEdited = false
         };
+
+        await _chatNotifier.NotifyNewMessageAsync(chatId, messageDto);
+
+        var memberIds = chat.Members.Select(m => m.UserId);
+        await _chatNotifier.NotifyChatListUpdateAsync(memberIds, messageDto);
+
+        return messageDto;
     }
 
     private static MessageDto MapToDto(Message m)

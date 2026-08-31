@@ -1,16 +1,25 @@
-import { Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ChatSummary, Message } from '../../models/chat.model';
+import { SignalRService } from './signal-r.service';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private readonly apiUrl = `${environment.apiUrl}/chats`;
+  private signalRService = inject(SignalRService);
 
   readonly chats = signal<ChatSummary[]>([]);
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    effect(() => {
+      const message = this.signalRService.chatListUpdate();
+      if (message) {
+        this.updateChatWithNewMessage(message.chatId, message.content ?? '', message.sentAt);
+      }
+    });
+  }
 
   loadChats() {
     return this.http.get<ChatSummary[]>(this.apiUrl).pipe(

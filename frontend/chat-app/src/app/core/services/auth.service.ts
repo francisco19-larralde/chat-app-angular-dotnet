@@ -1,9 +1,10 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthResponse, User } from '../../models/user.model';
+import { SignalRService } from './signal-r.service';
 
 interface RegisterRequest {
   username: string;
@@ -22,12 +23,19 @@ export class AuthService {
   private readonly tokenKey = 'chatapp_token';
   private readonly userKey = 'chatapp_user';
 
+  private signalRService = inject(SignalRService);
+
   private currentUserSignal = signal<User | null>(this.getUserFromStorage());
 
   readonly currentUser = this.currentUserSignal.asReadonly();
   readonly isLoggedIn = computed(() => this.currentUserSignal() !== null);
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router) {
+    const existingToken = this.getToken();
+    if (existingToken && this.currentUserSignal()) {
+      this.signalRService.start(existingToken);
+    }
+  }
 
   register(data: RegisterRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data).pipe(
@@ -52,6 +60,7 @@ export class AuthService {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
     this.currentUserSignal.set(null);
+    this.signalRService.stop();
     this.router.navigate(['/login']);
   }
 
@@ -70,6 +79,7 @@ export class AuthService {
     localStorage.setItem(this.tokenKey, response.token);
     localStorage.setItem(this.userKey, JSON.stringify(user));
     this.currentUserSignal.set(user);
+    this.signalRService.start(response.token);
   }
 
   updateCurrentUser(partialUser: Partial<User>): void {

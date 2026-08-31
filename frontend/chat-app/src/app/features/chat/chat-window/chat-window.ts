@@ -1,21 +1,23 @@
-import { Component, inject, signal, OnInit, ElementRef, ViewChild, AfterViewChecked } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewChecked, effect } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../../core/services/chat.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { SignalRService } from '../../../core/services/signal-r.service';
 import { Message } from '../../../models/chat.model';
-import { CommonModule, DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-chat-window',
   standalone: true,
-  imports: [FormsModule, DatePipe, CommonModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './chat-window.html'
 })
-export class ChatWindow implements OnInit, AfterViewChecked {
+export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
   private route = inject(ActivatedRoute);
   private chatService = inject(ChatService);
   private authService = inject(AuthService);
+  private signalRService = inject(SignalRService);
 
   @ViewChild('messagesEnd') private messagesEnd!: ElementRef<HTMLDivElement>;
 
@@ -28,13 +30,39 @@ export class ChatWindow implements OnInit, AfterViewChecked {
   isSending = signal(false);
 
   private shouldScrollToBottom = false;
+  private previousChatId: number | null = null;
+
+  constructor() {
+    effect(() => {
+      const message = this.signalRService.lastMessage();
+      if (message && message.chatId === this.chatId()) {
+        this.addMessageIfNotExists(message);
+        this.shouldScrollToBottom = true;
+      }
+    });
+  }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe(async params => {
       const id = Number(params.get('chatId'));
+
+      if (this.previousChatId !== null) {
+        await this.signalRService.leaveChat(this.previousChatId);
+      }
+
       this.chatId.set(id);
+      this.previousChatId = id;
+
+      await this.signalRService.joinChat(id);
+
       this.loadMessages(id);
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.chatId() !== null) {
+      this.signalRService.leaveChat(this.chatId()!);
+    }
   }
 
   ngAfterViewChecked(): void {
@@ -64,7 +92,7 @@ export class ChatWindow implements OnInit, AfterViewChecked {
 
     this.chatService.sendMessage(chatId, content).subscribe({
       next: (message) => {
-        this.messages.update(list => [...list, message]);
+        this.addMessageIfNotExists(message);
         this.chatService.updateChatWithNewMessage(chatId, message.content ?? '', message.sentAt);
         this.newMessageText = '';
         this.isSending.set(false);
@@ -74,6 +102,13 @@ export class ChatWindow implements OnInit, AfterViewChecked {
         this.isSending.set(false);
       }
     });
+  }
+
+  private addMessageIfNotExists(message: Message): void {
+    const alreadyExists = this.messages().some(m => m.id === message.id);
+    if (!alreadyExists) {
+      this.messages.update(list => [...list, message]);
+    }
   }
 
   isMine(message: Message): boolean {

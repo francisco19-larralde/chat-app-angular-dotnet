@@ -14,6 +14,7 @@ export interface Message {
   senderId: number;
   senderUsername: string;
   senderProfilePictureUrl?: string;
+  otherUserId?: number;
   content?: string;
   sentAt: string;
   isEdited: boolean;
