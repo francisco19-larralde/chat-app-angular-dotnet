@@ -6,6 +6,28 @@
   </div>
   } @else {
 
+  <!-- Header del chat -->
+  @if (currentChatSummary(); as summary) {
+  <div class="p-3 border-b border-base-300 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="avatar">
+        <div class="w-9 rounded-full bg-neutral overflow-hidden">
+          @if (summary.displayPictureUrl; as url) {
+          <img [src]="url" class="w-full h-full object-cover" />
+          }
+        </div>
+      </div>
+      <span class="font-semibold">{{ summary.displayName }}</span>
+    </div>
+
+    @if (summary.isGroup) {
+    <button class="btn btn-ghost btn-sm btn-circle" (click)="showGroupInfo.set(true)" title="Info del grupo">
+      ℹ️
+    </button>
+    }
+  </div>
+  }
+
   <!-- Mensajes -->
   <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-2">
     @for (message of messages(); track message.id) {
@@ -41,6 +63,9 @@
       }
     </button>
   </div>
-
   }
 </div>
+
+@if (showGroupInfo() && chatId()) {
+<app-group-info [chatId]="chatId()!" (close)="showGroupInfo.set(false)" />
+}

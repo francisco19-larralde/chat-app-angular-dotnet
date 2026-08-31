@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewChecked, effect } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewChecked, effect, computed } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -6,11 +6,12 @@ import { ChatService } from '../../../core/services/chat.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { SignalRService } from '../../../core/services/signal-r.service';
 import { Message } from '../../../models/chat.model';
+import { GroupInfo } from '../../groups/group-info/group-info';
 
 @Component({
   selector: 'app-chat-window',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, GroupInfo],
   templateUrl: './chat-window.html'
 })
 export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
@@ -28,6 +29,7 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
   isLoading = signal(true);
   newMessageText = '';
   isSending = signal(false);
+  showGroupInfo = signal(false);
 
   private shouldScrollToBottom = false;
   private previousChatId: number | null = null;
@@ -103,6 +105,10 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
       }
     });
   }
+
+  currentChatSummary = computed(() =>
+    this.chatService.chats().find(c => c.chatId === this.chatId())
+  );
 
   private addMessageIfNotExists(message: Message): void {
     const alreadyExists = this.messages().some(m => m.id === message.id);

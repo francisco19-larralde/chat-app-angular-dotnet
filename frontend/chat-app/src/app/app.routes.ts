@@ -7,6 +7,7 @@ import { Profile } from './features/profile/profile';
 import { Friends } from './features/friends/friends';
 import { guestGuard } from './core/guards/guest.guard';
 import { ChatWindow } from './features/chat/chat-window/chat-window';
+import { CreateGroup } from './features/groups/create-group/create-group';
 
 export const routes: Routes = [
   { path: 'login', component: Login, canActivate: [guestGuard] },
@@ -19,7 +20,8 @@ export const routes: Routes = [
     children: [
       { path: 'profile', component: Profile },
       { path: 'friends', component: Friends },
-      { path: 'chat/:chatId', component: ChatWindow }
+      { path: 'chat/:chatId', component: ChatWindow },
+      { path: 'groups/new', component: CreateGroup }
     ]
   }
 ];

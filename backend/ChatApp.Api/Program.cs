@@ -37,6 +37,7 @@ builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IUserConnectionTracker, InMemoryUserConnectionTracker>();
 builder.Services.AddScoped<IChatNotifier, ChatApp.Api.Hubs.SignalRChatNotifier>();
+builder.Services.AddScoped<IGroupService, GroupService>();
 
 // --- Autenticación JWT ---
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()!;

@@ -14,5 +14,9 @@ public interface IChatRepository
     Task AddMessageAsync(Message message);
     Task<List<Message>> GetMessagesAsync(int chatId, int skip, int take);
 
+    Task AddMemberAsync(ChatMember member);
+    void RemoveMember(ChatMember member);
+    Task<int> CountAdminsAsync(int chatId);
+
     Task SaveChangesAsync();
 }

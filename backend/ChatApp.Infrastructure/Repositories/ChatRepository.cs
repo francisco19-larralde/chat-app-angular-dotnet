@@ -44,6 +44,22 @@ public class ChatRepository : IChatRepository
             .ToListAsync();
     }
 
+    public async Task AddMemberAsync(ChatMember member)
+    {
+        await _context.ChatMembers.AddAsync(member);
+    }
+
+    public void RemoveMember(ChatMember member)
+    {
+        _context.ChatMembers.Remove(member);
+    }
+
+    public async Task<int> CountAdminsAsync(int chatId)
+    {
+        return await _context.ChatMembers
+            .CountAsync(m => m.ChatId == chatId && m.Role == ChatRole.Admin);
+    }
+
     public async Task AddAsync(Chat chat)
     {
         await _context.Chats.AddAsync(chat);
@@ -53,6 +69,8 @@ public class ChatRepository : IChatRepository
     {
         await _context.Messages.AddAsync(message);
     }
+
+
 
     public async Task<List<Message>> GetMessagesAsync(int chatId, int skip, int take)
     {
