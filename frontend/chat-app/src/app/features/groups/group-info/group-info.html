@@ -61,7 +61,7 @@
         @for (friend of addableFriends(); track friend.userId) {
         <div class="flex items-center justify-between p-2 rounded-lg hover:bg-base-200">
           <div class="flex items-center gap-2">
-            <div class="avatar">
+            <div class="avatar" (click)="openProfilePreview(friend.userId)">
               <div class="w-8 rounded-full bg-neutral overflow-hidden">
                 @if (getImageUrl(friend.profilePictureUrl); as url) {
                 <img [src]="url" class="w-full h-full object-cover" />
