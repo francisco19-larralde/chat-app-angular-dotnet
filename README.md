@@ -224,33 +224,6 @@ chat-app-portfolio/
 
 ---
 
-## 🗺️ Roadmap / Estado del proyecto
-
-- [x] Autenticación (JWT + Google OAuth)
-- [x] Perfil de usuario (foto de perfil y portada)
-- [x] Sistema de amigos
-- [x] Chats 1 a 1
-- [x] Grupos de chat
-- [x] Mensajería en tiempo real (SignalR)
-- [x] Estado online/offline en vivo
-- [x] Archivos adjuntos en mensajes
-- [x] Preview de perfil en modal
-- [ ] Edición de grupo (nombre y foto)
-- [ ] Landing page
-- [ ] Tests automatizados (backend y frontend)
-- [ ] Deploy en producción
-
----
-
-## 🧑‍💻 Autor
-
-Desarrollado por **[Tu Nombre]** como proyecto de portfolio.
-
-- LinkedIn: [tu perfil]
-- Portfolio: [tu web]
-- Email: [tu email]
-
----
 
 ## 📄 Licencia
 
