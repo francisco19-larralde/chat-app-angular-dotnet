@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { UserProfile } from '../../models/user.model';
+import { PublicUserProfile, UserProfile } from '../../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -28,5 +28,9 @@ export class UserService {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<{ url: string }>(`${this.apiUrl}/me/cover-picture`, formData);
+  }
+
+  getPublicProfile(userId: number): Observable<PublicUserProfile> {
+    return this.http.get<PublicUserProfile>(`${this.apiUrl}/${userId}`);
   }
 }

@@ -23,3 +23,12 @@ export interface UserProfile {
   lastSeen?: string;
 }
 
+export interface PublicUserProfile {
+  id: number;
+  username: string;
+  profilePictureUrl?: string;
+  coverPictureUrl?: string;
+  isOnline: boolean;
+  lastSeen?: string;
+}
+

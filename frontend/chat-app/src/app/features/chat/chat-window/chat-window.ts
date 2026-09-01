@@ -35,6 +35,7 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
   selectedFile = signal<File | null>(null);
   selectedFilePreviewUrl = signal<string | null>(null);
 
+
   private shouldScrollToBottom = false;
   private previousChatId: number | null = null;
 
@@ -56,6 +57,8 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
         await this.signalRService.leaveChat(this.previousChatId);
       }
 
+      this.showGroupInfo.set(false);
+
       this.chatId.set(id);
       this.previousChatId = id;
 
@@ -76,6 +79,10 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked {
       this.scrollToBottom();
       this.shouldScrollToBottom = false;
     }
+  }
+
+  getImageUrl(relativeUrl?: string): string | null {
+    return relativeUrl ? `${this.serverUrl}${relativeUrl}` : null;
   }
 
   private loadMessages(chatId: number): void {

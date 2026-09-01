@@ -7,13 +7,14 @@ import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 import { ChatService } from '../../core/services/chat.service';
 import { Router } from '@angular/router';
 import { SignalRService } from '../../core/services/signal-r.service';
+import { ProfilePreview } from '../../shared/components/profile-preview/profile-preview';
 
 type Tab = 'search' | 'requests' | 'friends';
 
 @Component({
   selector: 'app-friends',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, ProfilePreview],
   templateUrl: './friends.html'
 })
 export class Friends implements OnInit {
@@ -29,6 +30,7 @@ export class Friends implements OnInit {
   searchQuery = '';
   searchResults = signal<UserSearchResult[]>([]);
   isSearching = signal(false);
+  previewUserId = signal<number | null>(null);
 
   requests = this.friendService.pendingRequests;
   friends = this.friendService.friends;
@@ -57,6 +59,10 @@ export class Friends implements OnInit {
 
   isOnline(userId: number): boolean {
     return this.onlineUserIds().has(userId);
+  }
+
+  openProfilePreview(userId: number): void {
+    this.previewUserId.set(userId);
   }
 
   onSearchChange(): void {

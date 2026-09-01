@@ -56,6 +56,22 @@ public class UserService : IUserService
         return newUrl;
     }
 
+    public async Task<PublicUserProfileDto> GetPublicProfileAsync(int userId)
+    {
+        var user = await _userRepository.GetByIdAsync(userId)
+            ?? throw new KeyNotFoundException("Usuario no encontrado.");
+
+        return new PublicUserProfileDto
+        {
+            Id = user.Id,
+            Username = user.Username,
+            ProfilePictureUrl = user.ProfilePictureUrl,
+            CoverPictureUrl = user.CoverPictureUrl,
+            IsOnline = user.IsOnline,
+            LastSeen = user.LastSeen
+        };
+    }
+
     public async Task<string> UpdateCoverPictureAsync(int userId, Stream fileStream, string fileName)
     {
         var user = await _userRepository.GetByIdAsync(userId)

@@ -74,6 +74,20 @@ public class UserController : ControllerBase
         return Ok(new { url });
     }
 
+    [HttpGet("{userId}")]
+    public async Task<IActionResult> GetPublicProfile(int userId)
+    {
+        try
+        {
+            var profile = await _userService.GetPublicProfileAsync(userId);
+            return Ok(profile);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+
 
     private static bool IsValidImage(IFormFile? file, out string error)
     {

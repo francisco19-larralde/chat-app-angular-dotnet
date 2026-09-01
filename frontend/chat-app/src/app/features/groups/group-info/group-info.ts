@@ -7,11 +7,12 @@ import { ChatService } from '../../../core/services/chat.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { GroupDetails } from '../../../models/group.model';
 import { environment } from '../../../../environments/environment';
+import { ProfilePreview } from '../../../shared/components/profile-preview/profile-preview';
 
 @Component({
   selector: 'app-group-info',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, ProfilePreview],
   templateUrl: './group-info.html'
 })
 export class GroupInfo implements OnInit {
@@ -29,8 +30,10 @@ export class GroupInfo implements OnInit {
   details = signal<GroupDetails | null>(null);
   isLoading = signal(true);
   errorMessage = signal<string | null>(null);
+  previewUserId = signal<number | null>(null);
 
   friends = this.friendService.friends;
+  user = this.authService.currentUser;
   addableFriends = signal<{ userId: number; username: string; profilePictureUrl?: string }[]>([]);
 
   ngOnInit(): void {
@@ -61,6 +64,10 @@ export class GroupInfo implements OnInit {
     this.groupService.addMember(this.chatId(), userId).subscribe({
       next: () => this.loadDetails()
     });
+  }
+
+  openProfilePreview(userId: number): void {
+    this.previewUserId.set(userId);
   }
 
   removeMember(userId: number): void {

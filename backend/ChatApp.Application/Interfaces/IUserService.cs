@@ -8,4 +8,5 @@ public interface IUserService
     Task<UserProfileDto> UpdateProfileAsync(int userId, UpdateProfileDto request);
     Task<string> UpdateProfilePictureAsync(int userId, Stream fileStream, string fileName);
     Task<string> UpdateCoverPictureAsync(int userId, Stream fileStream, string fileName);
+    Task<PublicUserProfileDto> GetPublicProfileAsync(int userId);
 }
