@@ -15,10 +15,17 @@ public class LocalFileStorageService : IFileStorageService
 
     public async Task<string> SaveFileAsync(Stream fileStream, string fileName, string subFolder)
     {
+        var safeFileName = Path.GetFileName(fileName);
+        if (string.IsNullOrWhiteSpace(safeFileName))
+            throw new InvalidOperationException("El nombre del archivo no es válido.");
 
-        var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
+        var safeSubFolder = Path.GetFileName(subFolder);
+        if (!string.Equals(safeSubFolder, subFolder, StringComparison.Ordinal))
+            throw new InvalidOperationException("La carpeta de destino no es válida.");
 
-        var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", subFolder);
+        var uniqueFileName = $"{Guid.NewGuid():N}_{safeFileName}";
+
+        var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", safeSubFolder);
 
 
         if (!Directory.Exists(uploadsFolder))
@@ -32,7 +39,7 @@ public class LocalFileStorageService : IFileStorageService
         }
 
 
-        return $"/uploads/{subFolder}/{uniqueFileName}";
+        return $"/uploads/{safeSubFolder}/{uniqueFileName}";
     }
 
     public void DeleteFile(string fileUrl)

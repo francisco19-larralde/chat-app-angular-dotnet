@@ -7,11 +7,15 @@ frontend/chat-app/.angular/
 backend/**/bin/
 backend/**/obj/
 backend/**/*.user
+backend/ChatApp.Api/wwwroot/uploads/
 
 ## Archivos de configuración con secretos
 **/appsettings.Development.json
 **/appsettings.Production.json
 **/.env
+
+# Copias locales de archivos subidos (nunca versionar contenido de usuarios)
+**/.local-uploads-backup/
 
 ## Sistema operativo / editor
 .vscode/

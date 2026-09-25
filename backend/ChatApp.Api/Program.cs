@@ -23,6 +23,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // --- Options Pattern: lee la sección "Jwt" de appsettings y la tipa como JwtSettings ---
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
+builder.Services.Configure<GoogleSettings>(builder.Configuration.GetSection("Google"));
 
 // --- Inyección de dependencias: interfaz -> implementación ---
 // "Scoped" significa: una instancia nueva por cada request HTTP

@@ -15,11 +15,16 @@ public class AuthService : IAuthService
 {
     private readonly IUserRepository _userRepository;
     private readonly JwtSettings _jwtSettings;
+    private readonly GoogleSettings _googleSettings;
 
-    public AuthService(IUserRepository userRepository, IOptions<JwtSettings> jwtSettings)
+    public AuthService(
+        IUserRepository userRepository,
+        IOptions<JwtSettings> jwtSettings,
+        IOptions<GoogleSettings> googleSettings)
     {
         _userRepository = userRepository;
         _jwtSettings = jwtSettings.Value;
+        _googleSettings = googleSettings.Value;
     }
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request)
@@ -64,7 +69,15 @@ public class AuthService : IAuthService
         GoogleJsonWebSignature.Payload payload;
         try
         {
-            payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken);
+            if (string.IsNullOrWhiteSpace(_googleSettings.ClientId))
+                throw new InvalidOperationException("Google OAuth no está configurado.");
+
+            payload = await GoogleJsonWebSignature.ValidateAsync(
+                request.IdToken,
+                new GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = [_googleSettings.ClientId]
+                });
         }
         catch (InvalidJwtException)
         {

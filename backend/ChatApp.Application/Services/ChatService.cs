@@ -130,7 +130,7 @@ public class ChatService : IChatService
             throw new InvalidOperationException("El mensaje tiene que tener texto o un archivo adjunto.");
 
         if (hasFile)
-            ValidateFile(file!);
+            await ValidateFileAsync(file!);
 
         var message = new Message
         {
@@ -142,14 +142,15 @@ public class ChatService : IChatService
 
         if (hasFile)
         {
-            using var stream = file!.OpenReadStream();
-            var fileUrl = await _fileStorageService.SaveFileAsync(stream, file.FileName, "attachments");
+            var safeFileName = Path.GetFileName(file!.FileName);
+            using var stream = file.OpenReadStream();
+            var fileUrl = await _fileStorageService.SaveFileAsync(stream, safeFileName, "attachments");
 
 
             message.Attachments.Add(new Attachment
             {
                 FileUrl = fileUrl,
-                FileName = file.FileName,
+                FileName = safeFileName,
                 ContentType = file.ContentType,
                 FileSizeBytes = file.Length
             });
@@ -182,14 +183,59 @@ public class ChatService : IChatService
         return messageDto;
     }
 
-    private static void ValidateFile(IFormFile file)
+    private static async Task ValidateFileAsync(IFormFile file)
     {
         if (file.Length > MaxFileSizeBytes)
             throw new InvalidOperationException("El archivo no puede superar los 20 MB.");
 
         if (!AllowedContentTypes.Contains(file.ContentType))
             throw new InvalidOperationException("Tipo de archivo no permitido.");
+
+        var extension = Path.GetExtension(Path.GetFileName(file.FileName)).ToLowerInvariant();
+        var validExtensions = file.ContentType switch
+        {
+            "image/jpeg" => new[] { ".jpg", ".jpeg" },
+            "image/png" => new[] { ".png" },
+            "image/webp" => new[] { ".webp" },
+            "image/gif" => new[] { ".gif" },
+            "application/pdf" => new[] { ".pdf" },
+            "application/msword" => new[] { ".doc" },
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => new[] { ".docx" },
+            "text/plain" => new[] { ".txt" },
+            "application/zip" => new[] { ".zip" },
+            _ => Array.Empty<string>()
+        };
+
+        if (!validExtensions.Contains(extension))
+            throw new InvalidOperationException("La extensión no coincide con el tipo de archivo.");
+
+        await using var stream = file.OpenReadStream();
+        var header = new byte[Math.Min(512, (int)file.Length)];
+        var bytesRead = await stream.ReadAsync(header);
+        var signatureIsValid = file.ContentType switch
+        {
+            "image/jpeg" => StartsWith(header, bytesRead, 0xFF, 0xD8, 0xFF),
+            "image/png" => StartsWith(header, bytesRead, 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A),
+            "image/gif" => StartsWithAscii(header, bytesRead, "GIF87a") || StartsWithAscii(header, bytesRead, "GIF89a"),
+            "image/webp" => StartsWithAscii(header, bytesRead, "RIFF") && bytesRead >= 12 &&
+                            System.Text.Encoding.ASCII.GetString(header, 8, 4) == "WEBP",
+            "application/pdf" => StartsWithAscii(header, bytesRead, "%PDF"),
+            "application/msword" => StartsWith(header, bytesRead, 0xD0, 0xCF, 0x11, 0xE0),
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => StartsWith(header, bytesRead, 0x50, 0x4B),
+            "application/zip" => StartsWith(header, bytesRead, 0x50, 0x4B),
+            "text/plain" => !header.Take(bytesRead).Contains((byte)0),
+            _ => false
+        };
+
+        if (!signatureIsValid)
+            throw new InvalidOperationException("El contenido del archivo no coincide con el tipo declarado.");
     }
+
+    private static bool StartsWith(byte[] buffer, int bytesRead, params byte[] signature) =>
+        bytesRead >= signature.Length && buffer.AsSpan(0, signature.Length).SequenceEqual(signature);
+
+    private static bool StartsWithAscii(byte[] buffer, int bytesRead, string signature) =>
+        StartsWith(buffer, bytesRead, System.Text.Encoding.ASCII.GetBytes(signature));
 
     private static MessageDto MapToDto(Message m)
     {

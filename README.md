@@ -33,7 +33,7 @@ Aplicación de mensajería en tiempo real estilo Telegram/Discord, desarrollada 
 - **Swagger / Swashbuckle** para documentación de la API
 
 ### Frontend
-- **Angular 20** (standalone components, signals, control flow moderno `@if`/`@for`)
+- **Angular 22** (standalone components, signals, control flow moderno `@if`/`@for`)
 - **Tailwind CSS v4** + **DaisyUI** para estilos y componentes UI
 - **PrimeNG** para componentes complejos puntuales
 - **@microsoft/signalr** (cliente) para tiempo real
@@ -96,7 +96,7 @@ Antes de clonar el proyecto, asegurate de tener instalado:
 |---|---|---|
 | [.NET SDK](https://dotnet.microsoft.com/download) | 10.0 o superior | |
 | [Node.js](https://nodejs.org/) | 20.x o superior | Incluye npm |
-| [Angular CLI](https://angular.dev/tools/cli) | 20.x o superior | `npm install -g @angular/cli` |
+| [Angular CLI](https://angular.dev/tools/cli) | 22.x o superior | `npm install -g @angular/cli` |
 | [SQL Server LocalDB](https://learn.microsoft.com/sql/database-engine/configure-windows/sql-server-express-localdb) | — | Incluido con Visual Studio, o instalable por separado |
 | [Git](https://git-scm.com/) | — | |
 
